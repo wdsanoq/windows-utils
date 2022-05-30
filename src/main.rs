@@ -1,9 +1,8 @@
-// #![windows_subsystem = "windows"]
+#![windows_subsystem = "windows"]
 extern crate user32;
 extern crate winapi;
 
 use clap::{Parser, Subcommand};
-use simple_logger::SimpleLogger;
 use std::mem;
 use winapi::shared::windef::{POINT, RECT, SIZE};
 use winapi::um::winuser::{MONITORINFO, MONITOR_DEFAULTTONEAREST, SW_SHOW};
@@ -26,14 +25,14 @@ enum Commands {
 fn focus_region(x: i32, y: i32) {
     let point = POINT { x, y };
     unsafe {
-        let left_window_handle = winapi::um::winuser::WindowFromPoint(point);
-        winapi::um::winuser::SetForegroundWindow(left_window_handle);
-        winapi::um::winuser::ShowWindow(left_window_handle, SW_SHOW);
+        let window_handle = winapi::um::winuser::WindowFromPoint(point);
+        winapi::um::winuser::SetForegroundWindow(window_handle);
+        winapi::um::winuser::ShowWindow(window_handle, SW_SHOW);
+        winapi::um::winuser::EnableWindow(window_handle, 1);
     }
 }
 
 fn move_to_monitor(monitor: i32) {
-    SimpleLogger::new().init().unwrap();
     let mut rect: RECT = unsafe { mem::zeroed() };
     let mut wsize = SIZE { cx: 0, cy: 0 };
     let mut monitor_info: MONITORINFO = unsafe { mem::zeroed() };
