@@ -25,10 +25,12 @@ enum Commands {
 fn focus_region(x: i32, y: i32) {
     let point = POINT { x, y };
     unsafe {
-        let window_handle = winapi::um::winuser::WindowFromPoint(point);
-        winapi::um::winuser::SetForegroundWindow(window_handle);
-        winapi::um::winuser::ShowWindow(window_handle, SW_SHOW);
-        winapi::um::winuser::EnableWindow(window_handle, 1);
+        let handle_at_point = winapi::um::winuser::WindowFromPoint(point);
+        let parent_handle = winapi::um::winuser::GetParent(handle_at_point);
+        winapi::um::winuser::SetForegroundWindow(parent_handle);
+        winapi::um::winuser::ShowWindow(parent_handle, SW_SHOW);
+        // winapi::um::winuser::PostMessageW(window_handle, WM_LBUTTONDOWN, MK_LBUTTON, 0);
+        // winapi::um::winuser::PostMessageW(window_handle, WM_LBUTTONUP, MK_LBUTTON, 0);
     }
 }
 
