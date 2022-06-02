@@ -4,7 +4,8 @@ extern crate winapi;
 
 use clap::{Parser, Subcommand};
 use std::mem;
-use winapi::shared::windef::{POINT, RECT, SIZE};
+use std::ptr::null_mut;
+use winapi::shared::windef::{HWND, POINT, RECT, SIZE};
 use winapi::um::winuser::{MONITORINFO, MONITOR_DEFAULTTONEAREST, SW_SHOW};
 
 #[derive(Parser)]
@@ -24,13 +25,16 @@ enum Commands {
 
 fn focus_region(x: i32, y: i32) {
     let point = POINT { x, y };
+    let handle_at_point: HWND = unsafe { winapi::um::winuser::WindowFromPoint(point) };
+    let parent_handle: HWND = unsafe { winapi::um::winuser::GetParent(handle_at_point) };
+    let handle = if parent_handle == null_mut() {
+        handle_at_point
+    } else {
+        parent_handle
+    };
     unsafe {
-        let handle_at_point = winapi::um::winuser::WindowFromPoint(point);
-        let parent_handle = winapi::um::winuser::GetParent(handle_at_point);
-        winapi::um::winuser::SetForegroundWindow(parent_handle);
-        winapi::um::winuser::ShowWindow(parent_handle, SW_SHOW);
-        // winapi::um::winuser::PostMessageW(window_handle, WM_LBUTTONDOWN, MK_LBUTTON, 0);
-        // winapi::um::winuser::PostMessageW(window_handle, WM_LBUTTONUP, MK_LBUTTON, 0);
+        winapi::um::winuser::SetForegroundWindow(handle);
+        winapi::um::winuser::ShowWindow(handle, SW_SHOW);
     }
 }
 
